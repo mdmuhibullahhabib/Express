@@ -14,12 +14,11 @@ const pool = new Pool({
 
 const initDB = async () => {
     try {
-
         await pool.query(`
         CREATE TABLE IF NOT EXISTS users(
             id SERIAL PRIMARY KEY,
             name VARCHAR(20),
-            email VARCHAR(20) NOT NULL,
+            email VARCHAR(20) UNIQUE NOT NULL,
             password VARCHAR(20) NOT NULL,
             is_active BOOLEAN DEFAULT true,
             age INT,
@@ -28,14 +27,10 @@ const initDB = async () => {
             updated_at TIMESTAMP DEFAULT NOW()
         )
         `)
-
-        console.log("database connect successfully");
-        
+        console.log("database connect successfully")
 
     } catch (error) {
         console.log(error);
-
-
     }
 }
 
@@ -50,15 +45,30 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 app.post('/', async (req: Request, res: Response) => {
-    // console.log(req.body, "req");
-    const { name, mail, pass } = req.body;
-    res.status(201).json({
-        message: "create user",
-        data: {
-            name,
-            mail,
-        }
-    })
+
+    const { name, email, password, age } = req.body;
+
+    try {
+        const result = await pool.query(`
+        INSERT INTO users(name, email, password, age) VALUES($1,$2, $3, $4)
+        RETURNING *
+        `, [name, email, password, age]
+        );
+    
+        // console.log(result);
+    
+        res.status(201).json({
+            message: "create user",
+            data: result.rows[0],
+        })
+
+    } catch (error: any) {
+        res.status(500).json({
+            message: error.message,
+            data: error,
+        })
+
+    }
 })
 
 app.listen(port, () => {
