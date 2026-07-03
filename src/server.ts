@@ -36,7 +36,7 @@ const initDB = async () => {
 
 initDB();
 
-app.get('/', (req: Request, res: Response) => {
+app.get('/api/', (req: Request, res: Response) => {
     //   res.send('Hello World!')
     res.status(200).json({
         "message": "express server",
@@ -44,7 +44,7 @@ app.get('/', (req: Request, res: Response) => {
     })
 })
 
-app.post('/', async (req: Request, res: Response) => {
+app.post('/api/users', async (req: Request, res: Response) => {
 
     const { name, email, password, age } = req.body;
 
@@ -54,14 +54,12 @@ app.post('/', async (req: Request, res: Response) => {
         RETURNING *
         `, [name, email, password, age]
         );
-    
+
         // console.log(result);
-    
         res.status(201).json({
             message: "create user",
             data: result.rows[0],
         })
-
     } catch (error: any) {
         res.status(500).json({
             message: error.message,
@@ -70,6 +68,29 @@ app.post('/', async (req: Request, res: Response) => {
 
     }
 })
+
+app.get('/api/users', async (req: Request, res: Response) => {
+    try {
+        const result = await pool.query(`
+        SELECT * FROM users
+        `)
+        res.status(200).json({
+            success: true,
+            message: "get all users",
+            data: result.rows,
+        })
+
+    } catch (error : any) {
+       res.status(500).json({
+            message: error.message,
+            data: error,
+            success: false,
+            error: error
+
+    })
+}
+})
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
