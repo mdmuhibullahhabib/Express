@@ -1,8 +1,8 @@
 import express, { type Request, type Response } from "express";
 import { userRoute } from "./modules/user/user.route.js";
 import { authRoute } from "./modules/auth/auth.route.js";
+import loger from "./middleware/logger.js";
 
-import fs from "fs"
 
 const app = express()
 
@@ -10,18 +10,7 @@ app.use(express.json())
 app.use(express.text())
 app.use(express.urlencoded({ extended: true }))
 
-app.use((req, res, next) => {
-    console.log('Method- URL - Time :', req.method, req.url, Date.now());
-
-    const log = `\nMethod -> ${req.method} - Time -> ${Date.now()} - URL -> ${req.url}\n`;
-
-    fs.appendFile("logger.text", log, (err) =>{
-        console.log(err);
-        
-    })
-    
-    next();
-});
+app.use(loger);
 
 
 app.get('/', (req: Request, res: Response) => {

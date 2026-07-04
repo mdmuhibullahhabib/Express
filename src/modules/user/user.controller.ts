@@ -93,6 +93,8 @@ const updateUser = async (req: Request, res: Response) => {
             })
         }
 
+        
+
         // console.log(result);
         res.status(200).json({
             success: true,
