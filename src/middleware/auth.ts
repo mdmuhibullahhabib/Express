@@ -2,9 +2,13 @@ import type { NextFunction, Request, Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken"
 import config from "../config/index.js";
 import { pool } from "../db/index.js";
+import type { ROLES } from "../types/index.js";
 
-const auth = () => {
+const auth = (...roles: ROLES[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
+
+        console.log(roles);
+        
         // console.log("this is protected");
         try {
 
@@ -30,19 +34,29 @@ const auth = () => {
             console.log(user, "user");
 
             if (userData.rows.length === 0) {
-                res.status(404).json({
+                 res.status(404).json({
                     success: false,
                     message: "user not found"
                 })
 
             }
 
-            if (user.is_active) {
+            if (!user?.is_active) {
                 res.status(403).json({
                     success: false,
                     message: "Forbidde"
                 })
             }
+
+
+            if (roles.length && !roles.includes(user.role)) {
+                res.status(403).json({
+                    success: false,
+                    message: "Forbidde"
+                }) 
+                
+            }
+
             req.user = decoded
 
             next();

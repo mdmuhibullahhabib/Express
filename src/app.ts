@@ -2,9 +2,12 @@ import express, { type Request, type Response } from "express";
 import { userRoute } from "./modules/user/user.route.js";
 import { authRoute } from "./modules/auth/auth.route.js";
 import loger from "./middleware/logger.js";
+import cookieParser from "cookie-parser"
 
 
 const app = express()
+
+app.use(cookieParser())
 
 app.use(express.json())
 app.use(express.text())
